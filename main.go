@@ -27,7 +27,6 @@ func initClient() *Reporter {
 	}
 }
 
-// Todo
 func submitDogstatsD(name string, value float64, reporter *Reporter) {
 	err := reporter.Client.Gauge(name, value, nil, 1)
 	if err != nil {
