@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"os/exec"
 	"strconv"
@@ -13,6 +14,9 @@ type Reporter struct {
 	Client *statsd.Client
 }
 
+var regionTag string
+var customTag string
+
 func initClient() *Reporter {
 	c, err := statsd.New("127.0.0.1:8125")
 	if err != nil {
@@ -21,7 +25,10 @@ func initClient() *Reporter {
 	// namespace.metric
 	c.Namespace = "unbound."
 	c.Tags = append(c.Tags, "unbound")
-	c.Tags = append(c.Tags, "ap-northeast-1")
+	c.Tags = append(c.Tags, regionTag)
+	if customTag != "" {
+		c.Tags = append(c.Tags, customTag)
+	}
 	return &Reporter{
 		Client: c,
 	}
@@ -92,6 +99,10 @@ func execUnboundControl(reporter *Reporter) {
 }
 
 func main() {
+	flag.StringVar(&regionTag, "region", "ap-northeast-1", "Specify aws region")
+	flag.StringVar(&customTag, "tag", "", "Specify aws accounnt name")
+	flag.Parse()
+
 	reporter := initClient()
 	execUnboundControl(reporter)
 }
